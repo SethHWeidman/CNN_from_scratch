@@ -6,7 +6,7 @@ import scipy as sp
 
 import time
 
-def read_idx(filename, path='./data/mldata/'):
+def read_idx(filename, path='./mldata/'):
     with open(path + filename, 'rb') as f:
         zero, data_type, dims = struct.unpack('>HBB', f.read(4))
         shape = tuple(struct.unpack('>I', f.read(4))[0] for d in range(dims))

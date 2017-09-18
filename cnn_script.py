@@ -404,8 +404,9 @@ class Pool(Layer):
         self.last_switches = np.empty(self.output_shape(input.shape)+(2,),
                                       dtype=np.int)
         poolout = np.empty(self.output_shape(input.shape))
-        poolout = pool_bc01(input, poolout, self.last_switches, self.pool_h, self.pool_w,
+        poolout, switches = pool_bc01(input, poolout, self.last_switches, self.pool_h, self.pool_w,
                   self.stride_y, self.stride_x)
+        self.last_switches = switches
         return poolout
 
     def bprop(self, output_grad):
@@ -571,7 +572,7 @@ def pool_bc01(imgs, poolout, switches, pool_h,
                     switches[i, c, y_out, x_out, 0] = img_y_max
                     switches[i, c, y_out, x_out, 1] = img_x_max
 
-    return poolout
+    return poolout, switches
 
 def bprop_pool_bc01(poolout_grad, switches, imgs_grad):
 
@@ -580,7 +581,6 @@ def bprop_pool_bc01(poolout_grad, switches, imgs_grad):
     poolout_h = poolout_grad.shape[2]
     poolout_w = poolout_grad.shape[3]
 
-    imgs_grad = np.zeros((n_imgs, n_channels, imgs_grad.shape[2], imgs_grad.shape[3]))
     for i in range(n_imgs):
         for c in range(n_channels):
             for y in range(poolout_h):
